@@ -97,3 +97,70 @@ unemp_top_decreases <- unemp |>
   )
 unemp_top_increases
 unemp_top_decreases
+
+unemp_top_increases_no_covid <- unemp |>
+  filter(date < as.Date("2020-01-01") |
+           date >= as.Date("2021-01-01")) |>
+  slice_max(
+    order_by = unemployment_rate_change,
+    n = 5
+    )
+unemp_top_increases_no_covid
+
+unemp_top_decreases_no_covid <- unemp |>
+  filter(date < as.Date("2020-01-01") |
+           date >= as.Date("2021-01-01")) |>
+  slice_min(
+    order_by = unemployment_rate_change,
+    n = 5
+  )
+
+unemp_top_decreases_no_covid
+
+ggplot(unemp, aes(x = date, y = unemployment_rate, color = region)) +
+  geom_line() +
+  labs(
+    title = "Unemployment Rates Over Time by Region",
+    x = "Year",
+    y = "Unemployment Rate (%)",
+    color = "Region"
+  ) +
+  theme_minimal()
+
+ggplot(unemp, aes(x = date, y = unemployment_rate)) +
+  geom_line(color = "steelblue") +
+  facet_wrap(~ region) +
+  labs(
+    title = "Unemployment Rate Trends by Region",
+    x = "Year",
+    y = "Unemployment Rate (%)"
+  ) +
+  theme_minimal()
+
+ggplot(unemp_summary,
+       aes(x = fct_reorder(region, mean_rate),
+           y = mean_rate)) +
+  geom_col(fill = "steelblue") +
+  labs(
+    title = "Average Unemployment Rate by Region",
+    x = "Region",
+    y = "Average Unemployment Rate (%)"
+  ) +
+  theme_minimal()
+
+ggplot(unemp_recent,
+       aes(x = date, y = unemployment_rate, color = region)) +
+  geom_line(linewidth = 0.8) +
+  labs(
+    title = "Unemployment Rates Since 2015",
+    subtitle = "Comparing the United States and Four States",
+    x = "Year",
+    y = "Unemployment Rate (%)",
+    color = "Region"
+  ) +
+  theme_minimal()
+# I chose to examine unemployment rates since 2015 to focus on
+# more recent labor market trends across the five regions.
+# This graph highlights the sharp increase in unemployment during
+# the COVID- 19 pandemic and the subsequent recovery.
+
