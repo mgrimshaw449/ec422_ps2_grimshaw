@@ -1,0 +1,49 @@
+library(tidyquant)
+library(tidyverse)
+
+# unemp_raw <- tq_get(
+#  c("UNRATE", "ORUR", "CAUR", "TXUR", "NYUR"),
+#  get = "economic.data",
+#  from = "1976-01-01"
+#)
+
+# head(unemp_raw)
+
+# dir.create("data", showWarnings = FALSE)
+
+# write_rds(unemp_raw, "data/unemp_raw.rds")
+
+unemp_raw = read_rds("data/unemp_raw.rds")
+
+unique(unemp_raw$symbol)
+
+unemp <- unemp_raw |>
+  rename(unemployment_rate = price) |>
+  mutate(
+    region = case_when(
+      symbol == "UNRATE" ~ "United States",
+      symbol == "ORUR" ~ "Oregon",
+      symbol == "CAUR" ~ "California",
+      symbol == "TXUR" ~ "Texas",
+      symbol == "NYUR" ~ "New York"
+    )
+  )
+head(unemp)
+
+unemp <- unemp |>
+  arrange(region, date) |>
+  group_by(region) |>
+  mutate(
+    unemployment_rate = replace(
+      unemployment_rate,
+      date == as.Date("2025-10-01"),
+      unemployment_rate[date == as.Date("2025-09-01")]
+    )
+  ) |>
+  ungroup()
+
+unemp |>
+  filter(date %in%  as.Date(c("2025-09-01", "2025-10-01"))) |>
+  select(region, date, unemployment_rate)
+
+file.exists("ps2_script_grimshaw.R")
