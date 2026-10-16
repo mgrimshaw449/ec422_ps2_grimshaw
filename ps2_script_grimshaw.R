@@ -46,4 +46,54 @@ unemp |>
   filter(date %in%  as.Date(c("2025-09-01", "2025-10-01"))) |>
   select(region, date, unemployment_rate)
 
-file.exists("ps2_script_grimshaw.R")
+unemp <- unemp |>
+  mutate(
+    unemployment_rate = replace(
+      unemployment_rate,
+      date == as.Date("2025-10-01"),
+      unemployment_rate[date == as.Date("2025-09-01")]
+    )
+  )
+
+unemp <- unemp |>
+  arrange(region, date) |>
+  group_by(region) |>
+  mutate(
+    unemployment_rate_change = unemployment_rate - lag(unemployment_rate)
+  ) |>
+  ungroup()
+
+unemp_recent <- unemp |>
+  filter(date >= as.Date("2015-01-01"))
+head(unemp_recent)
+
+unemp_summary <- unemp |>
+  group_by(region) |>
+  summarize(
+    mean_rate = mean(unemployment_rate, na.rm = TRUE),
+    min_rate = min(unemployment_rate, na.rm = TRUE),
+    max_rate = max(unemployment_rate, na.rm = TRUE),
+  )
+unemp_summary
+
+unemp_recent_summary <- unemp_recent |>
+  group_by(region) |>
+  summarize(
+    mean_rate = mean(unemployment_rate, na.rm = TRUE),
+    min_rate = min(unemployment_rate, na.rm = TRUE),
+    max_rate = max(unemployment_rate, na.rm = TRUE)
+    )
+unemp_recent_summary
+
+unemp_top_increases <- unemp |>
+  slice_max(
+    order_by = unemployment_rate_change,
+    n = 5
+  )
+unemp_top_decreases <- unemp |>
+  slice_min(
+    order_by = unemployment_rate_change,
+    n = 5
+  )
+unemp_top_increases
+unemp_top_decreases
