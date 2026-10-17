@@ -1,0 +1,176 @@
+---
+title: "Problem Set 2"
+author: "Meredith Grimshaw"
+date: today
+format:
+  html:
+    toc: true
+    embed-resources: true
+---
+
+**GitHub repo:** <https://github.com/mgrimshaw449/ec422_ps2_grimshaw>
+---
+
+## Data
+
+This analysis uses monthly employment rate data from the Federal Reserve Economic Data database. The data set includes unemployment rates for the United States and four individual states: Oregon, California, Texas, and New York. The data begins in January 1976 and contains observations through to the most recently available reporting period. The purpose of this analysis is to compare unemployment trends across regions and identify periods of significant increases and decreases in unemployment.
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+library(tidyverse)
+library(knitr)
+
+unemp_raw <- read_rds("data/unemp_raw.rds")
+
+kable(head(unemp_raw),
+      caption = "First Six Observations of the Unemployment Dataset")
+
+```
+
+## Wrangling
+
+The unemployment data was cleaned and organized to compare unemployment rates across the five regions. The following tables summarize unemployment rates over the full sample and since 2015, as well as the largest monthly increases and decreases when excluding observations from 2020.
+
+```{r}
+#| include: false
+
+source("ps2_script_grimshaw.R")
+```
+
+```{r}
+#| echo: false
+
+knitr::kable(
+  unemp_summary,
+  digits = 2,
+  caption = "Summary of Unemployment Rates by Region"
+)
+```
+
+This table compares the average, minimum, and maximum unemployment rates across all five regions over the full sample period.
+
+```{r}
+#| echo: false
+
+knitr::kable(
+  unemp_recent_summary,
+  digits = 2,
+  caption = "Unemployment Rate Summary Since 2015"
+)
+```
+
+This table presents the same statistics using observations from January 2015 onward, allowing for a comparison of more recent unemployment trends.
+
+```{r}
+#| echo: false
+
+knitr::kable(
+  unemp_top_increases_no_covid,
+  digits = 2,
+  caption = "Largest Monthly Unemployment Increases Excluding 2020"
+)
+```
+
+This table identifies the largest month to month increases in unemployment rates across the five regions, excluding the observations from the year 2020.
+
+```{r}
+#| echo: false
+
+knitr::kable(
+  unemp_top_decreases_no_covid,
+  digits = 2,
+  caption = "Largest Monthly Unemployment Decreases Excluding 2020"
+)
+```
+
+This table identifies the largest month to month decreases in unemployment rates, excluding the observations from the year 2020.
+
+## Visualization
+
+The following visualizations illustrate unemployment trends across the United States and four individual states. These graphs compare unemployment rates over time, highlight regional differences, and provide insight into how unemployment has changed during different economic periods.
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 6
+
+ggplot(unemp, aes(x = date,
+                  y = unemployment_rate,
+                  color = region)) +
+  geom_line() +
+  labs(
+    title = "Unemployment Rates Over Time by Region",
+    x = "Year",
+    y = "Unemployment Rate (%)",
+    color = "Region"
+  ) +
+  theme_minimal()
+```
+
+This graph compares unemployment rates across the five regions over the full sample period. Although unemployment rates generally follow similar trends, the magnitude of changes varies across states, particularly during periods of economic downturn.
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 7
+
+ggplot(unemp, aes(x = date, y = unemployment_rate)) +
+  geom_line(color = "steelblue") +
+  facet_wrap(~ region) +
+  labs(
+    title = "Unemployment Rate Trends by Region",
+    x = "Year",
+    y = "Unemployment Rate (%)"
+  ) +
+  theme_minimal()
+```
+
+These individual graphs display unemployment trends separately for each region, making it easier to identify differences in the timing and magnitude of unemployment fluctuations.
+
+```{r}
+#| echo: false
+#| fig-width: 9
+#| fig-height: 5
+
+ggplot(unemp_summary,
+       aes(x = fct_reorder(region, mean_rate),
+           y = mean_rate)) +
+  geom_col(fill = "steelblue") +
+  labs(
+    title = "Average Unemployment Rate by Region",
+    x = "Region",
+    y = "Average Unemployment Rate (%)"
+  ) +
+  theme_minimal()
+```
+
+This bar chart compares average unemployment rates across the five regions over the full sample period. California has the highest average unemployment rate, while Texas has the lowest, highlighting differences in regional labor market conditions.
+
+```{r}
+#| echo: false
+#| fig-width: 10
+#| fig-height: 6
+
+ggplot(unemp_recent,
+       aes(x = date,
+           y = unemployment_rate,
+           color = region)) +
+  geom_line(linewidth = 0.8) +
+  labs(
+    title = "Unemployment Rates Since 2015",
+    subtitle = "Comparing the United States and Four States",
+    x = "Year",
+    y = "Unemployment Rate (%)",
+    color = "Region"
+  ) +
+  theme_minimal()
+```
+
+I chose to examine unemployment rates since 2015 to focus on more recent labor market trends. The graph highlights the sharp increase in unemployment during the COVID 19 pandemic in 2020, followed by a gradual recovery across all five regions. I found this comparison interesting because it shows how unemployment rates can follow similar overall trends while still varying across individual states.
+
+## Reflection
+
+This assignment helped me become more comfortable working with R and GitHub. The part I found most challenging was organizing my R script correctly and ensuring my data loaded how I wanted it to. I ran into errors a few times while working on this assignment and I found that debugging these errors helped me to understand the code better. I found that working in Quarto also helped me to combine my analysis with my visual aspects to make an organized report that felt a lot clearer than my code itself. After completing this assignment I feel more confident using Git to save and track my progress and using Github Copilot chat when I get stuck.
